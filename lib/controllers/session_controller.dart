@@ -68,7 +68,6 @@ class SessionController extends ValueNotifier<AgoraSettings> {
   /// Function to initialize the Agora RTC engine.
   Future<void> initializeEngine(
       {required AgoraConnectionData agoraConnectionData, required RtcEngine engine}) async {
-    
     // final eng = createAgoraRtcEngine();
     // await eng.initialize(RtcEngineContext(
     //   appId: agoraConnectionData.appId,
