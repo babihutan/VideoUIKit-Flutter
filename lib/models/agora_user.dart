@@ -1,4 +1,4 @@
-import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 /// Data class of a user present in a channel.
 class AgoraUser {
@@ -6,14 +6,14 @@ class AgoraUser {
   final bool remote;
   final bool muted;
   final bool videoDisabled;
-  final ClientRole clientRole;
+  final ClientRoleType clientRole;
 
   AgoraUser({
     required this.uid,
     this.remote = true,
     this.muted = false,
     this.videoDisabled = false,
-    this.clientRole = ClientRole.Broadcaster,
+    this.clientRole = ClientRoleType.clientRoleBroadcaster,
   });
 
   AgoraUser copyWith({
@@ -21,7 +21,7 @@ class AgoraUser {
     bool? remote,
     bool? muted,
     bool? videoDisabled,
-    ClientRole? clientRole,
+    ClientRoleType? clientRole,
   }) {
     return AgoraUser(
       uid: uid ?? this.uid,

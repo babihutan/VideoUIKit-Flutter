@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 class AgoraRtcEventHandlers {
   /// Occurs when a remote user [ChannelProfile.Communication]/host [ChannelProfile.LiveBroadcasting] joins the channel
@@ -10,27 +10,27 @@ class AgoraRtcEventHandlers {
   final Function(String channel, int uid, int elapsed)? joinChannelSuccess;
 
   /// Reports an error during SDK runtime
-  final Function(ErrorCode errorCode)? onError;
+  final Function(ErrorCodeType errorCode)? onError;
 
   /// Occurs when a user leaves the channel.
   final Function(RtcStats stats)? leaveChannel;
 
   /// Occurs when a remote user [ChannelProfile.Communication]/host [ChannelProfile.LiveBroadcasting] leaves the channel.
-  final Function(int uid, UserOfflineReason reason)? userOffline;
+  final Function(int uid, UserOfflineReasonType reason)? userOffline;
 
   /// Occurs when the token expires in 30 seconds.
   final Function(String token)? tokenPrivilegeWillExpire;
 
   /// Occurs when the remote video state changes.
-  final Function(int uid, VideoRemoteState state, VideoRemoteStateReason reason,
+  final Function(int uid, RemoteVideoState state, RemoteVideoStateReason reason,
       int elapsed)? remoteVideoStateChanged;
 
   /// Occurs when the remote audio state changes.
-  final Function(int uid, AudioRemoteState state, AudioRemoteStateReason reason,
+  final Function(int uid, RemoteAudioState state, RemoteAudioStateReason reason,
       int elapsed)? remoteAudioStateChanged;
 
   /// Occurs when the local audio state changes.
-  final Function(AudioLocalState state, AudioLocalError error)?
+  final Function(LocalAudioStreamState state, LocalAudioStreamError error)?
       localAudioStateChanged;
 
   /// Occurs when the local video state changes.
@@ -42,10 +42,10 @@ class AgoraRtcEventHandlers {
   final Function(int uid)? activeSpeaker;
 
   /// Reports a warning during SDK runtime.
-  final Function(WarningCode)? warning;
+  //final Function(WarningCode)? warning;
 
   /// Occurs when an API method is executed.
-  final Function(ErrorCode, String, String)? apiCallExecuted;
+  final Function(ErrorCodeType, String, String)? apiCallExecuted;
 
   /// Occurs when a user rejoins the channel after being disconnected due to network problems.
   final Function(String, int, int)? rejoinChannelSuccess;
@@ -57,10 +57,10 @@ class AgoraRtcEventHandlers {
   final Function(int, UserInfo)? userInfoUpdated;
 
   /// Occurs when the user role switches in a live broadcast. For example, from a host to an audience or from an audience to a host.
-  final Function(ClientRole, ClientRole)? clientRoleChanged;
+  final Function(ClientRoleType, ClientRoleType)? clientRoleChanged;
 
   /// Occurs when the network connection state changes.
-  final Function(ConnectionStateType, ConnectionChangedReason)?
+  final Function(ConnectionStateType, ConnectionChangedReasonType)?
       connectionStateChanged;
 
   /// Occurs when the network type changes.
@@ -94,25 +94,25 @@ class AgoraRtcEventHandlers {
   final Function(int, bool)? remoteSubscribeFallbackToAudioOnly;
 
   /// Occurs when the local audio playback route changes.
-  final Function(AudioOutputRouting)? audioRouteChanged;
+  //final Function(AudioOutputRouting)? audioRouteChanged;
 
   /// Occurs when the camera focus area is changed.
-  final Function(Rect)? cameraFocusAreaChanged;
+  //final Function(Rect)? cameraFocusAreaChanged;
 
   /// The camera exposure area has changed.
-  final Function(Rect)? cameraExposureAreaChanged;
+  //final Function(Rect)? cameraExposureAreaChanged;
 
   /// Reports the face detection result of the local user.
-  final Function(int, int, List<FacePositionInfo>)? facePositionChanged;
+  //final Function(int, int, List<FacePositionInfo>)? facePositionChanged;
 
   /// Reports the statistics of the [RtcEngine] once every two seconds.
   final Function(RtcStats)? rtcStats;
 
   /// Reports the last mile network quality of the local user once every two seconds before the user joins the channel.
-  final Function(NetworkQuality)? lastmileQuality;
+  final Function(QualityType)? lastmileQuality;
 
   /// Reports the last mile network quality of each user in the channel once every two seconds.
-  final Function(int, NetworkQuality, NetworkQuality)? networkQuality;
+  final Function(int, QualityType, QualityType)? networkQuality;
 
   /// Reports the last-mile network probe result.
   final Function(LastmileProbeResult)? lastmileProbeResult;
@@ -133,15 +133,15 @@ class AgoraRtcEventHandlers {
   final Function()? audioMixingFinished;
 
   /// Occurs when the playback state of the local user's music file changes.
-  final Function(AudioMixingStateCode, AudioMixingReason)?
+  final Function(AudioMixingStateType, AudioMixingReasonType)?
       audioMixingStateChanged;
 
   /// Occurs when the audio effect file playback finishes.
   final Function(int)? audioEffectFinished;
 
   /// Occurs when the state of the RTMP or RTMPS streaming changes.
-  final Function(String, RtmpStreamingState, RtmpStreamingErrorCode)?
-      rtmpStreamingStateChanged;
+  // final Function(String, RtmpStreamPublishState RtmpStreamingStateType, RtmpStreamingErrorCode)?
+  //     rtmpStreamingStateChanged;
 
   /// Occurs when the publisher's transcoding settings are updated.
   final Function()? transcodingUpdated;
@@ -153,7 +153,7 @@ class AgoraRtcEventHandlers {
   final Function(int, int, Uint8List)? streamMessage;
 
   /// Occurs when the local user fails to receive a remote data stream.
-  final Function(int, int, ErrorCode, int, int)? streamMessageError;
+  final Function(int, int, ErrorCodeType, int, int)? streamMessageError;
 
   /// Occurs when the media engine is loaded.
   final Function()? mediaEngineLoadSuccess;
@@ -197,14 +197,14 @@ class AgoraRtcEventHandlers {
   final Function(String, RtmpStreamingEvent)? rtmpStreamingEvent;
 
   /// @nodoc
-  final Function(int, bool, SuperResolutionStateReason)?
-      userSuperResolutionEnabled;
+  // final Function(int, bool, SuperResolutionStateReason)?
+  //     userSuperResolutionEnabled;
 
   /// @nodoc
   final Function(String, bool, UploadErrorReason)? uploadLogResult;
 
   const AgoraRtcEventHandlers({
-    this.warning,
+    //this.warning,
     this.apiCallExecuted,
     this.rejoinChannelSuccess,
     this.localUserRegistered,
@@ -221,10 +221,10 @@ class AgoraRtcEventHandlers {
     this.videoSizeChanged,
     this.localPublishFallbackToAudioOnly,
     this.remoteSubscribeFallbackToAudioOnly,
-    this.audioRouteChanged,
-    this.cameraFocusAreaChanged,
-    this.cameraExposureAreaChanged,
-    this.facePositionChanged,
+    // this.audioRouteChanged,
+    // this.cameraFocusAreaChanged,
+    // this.cameraExposureAreaChanged,
+    // this.facePositionChanged,
     this.rtcStats,
     this.lastmileQuality,
     this.networkQuality,
@@ -236,7 +236,7 @@ class AgoraRtcEventHandlers {
     this.audioMixingFinished,
     this.audioMixingStateChanged,
     this.audioEffectFinished,
-    this.rtmpStreamingStateChanged,
+    //this.rtmpStreamingStateChanged,
     this.transcodingUpdated,
     this.streamInjectedStatus,
     this.streamMessage,
@@ -253,7 +253,7 @@ class AgoraRtcEventHandlers {
     this.audioSubscribeStateChanged,
     this.videoSubscribeStateChanged,
     this.rtmpStreamingEvent,
-    this.userSuperResolutionEnabled,
+    //this.userSuperResolutionEnabled,
     this.uploadLogResult,
     this.userJoined,
     this.joinChannelSuccess,

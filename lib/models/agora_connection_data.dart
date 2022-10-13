@@ -1,4 +1,4 @@
-import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 class AgoraConnectionData {
   /// The App ID issued to you by Agora. See [How to get the App ID](). Only users in apps with the same App ID can join the same channel and communicate with each other.
@@ -43,7 +43,7 @@ class AgoraConnectionData {
     this.tokenUrl,
     this.tempToken,
     this.tempRtmToken,
-    this.areaCode = const [AreaCode.GLOB],
+    this.areaCode = const [AreaCode.areaCodeGlob],
     this.rtmEnabled = true,
   });
 

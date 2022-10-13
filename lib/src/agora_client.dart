@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_uikit/controllers/session_controller.dart';
 import 'package:agora_uikit/models/agora_channel_data.dart';
 import 'package:agora_uikit/models/agora_connection_data.dart';
@@ -91,7 +91,7 @@ class AgoraClient {
       }
     }
 
-    if (agoraChannelData?.clientRole == ClientRole.Broadcaster ||
+    if (agoraChannelData?.clientRole == ClientRoleType.clientRoleBroadcaster ||
         agoraChannelData?.clientRole == null) {
       await _sessionController.askForUserCameraAndMicPermission();
     }

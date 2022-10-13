@@ -1,10 +1,11 @@
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_uikit/models/agora_user.dart';
 import 'package:agora_uikit/src/layout/widgets/disabled_video_widget.dart';
 import 'package:agora_uikit/src/layout/widgets/number_of_users.dart';
 import 'package:flutter/material.dart';
 import 'package:agora_uikit/agora_uikit.dart';
-import 'package:agora_rtc_engine/rtc_local_view.dart' as rtc_local_view;
-import 'package:agora_rtc_engine/rtc_remote_view.dart' as rtc_remote_view;
+// import 'package:agora_rtc_engine/rtc_local_view.dart' as rtc_local_view;
+// import 'package:agora_rtc_engine/rtc_remote_view.dart' as rtc_remote_view;
 
 class GridLayout extends StatefulWidget {
   final AgoraClient client;
@@ -16,14 +17,14 @@ class GridLayout extends StatefulWidget {
   final Widget? disabledVideoWidget;
 
   /// Render mode for local and remote video
-  final VideoRenderMode videoRenderMode;
+  final RenderModeType videoRenderMode;
 
   const GridLayout({
     Key? key,
     required this.client,
     this.showNumberOfUsers,
     this.disabledVideoWidget = const DisabledVideoWidget(),
-    this.videoRenderMode = VideoRenderMode.Hidden,
+    this.videoRenderMode = RenderModeType.renderModeHidden,
   }) : super(key: key);
 
   @override
@@ -34,7 +35,7 @@ class _GridLayoutState extends State<GridLayout> {
   List<Widget> _getRenderViews() {
     final List<StatefulWidget> list = [];
 
-    if (widget.client.agoraChannelData?.clientRole == ClientRole.Broadcaster ||
+    if (widget.client.agoraChannelData?.clientRole == ClientRoleType.clientRoleBroadcaster ||
         widget.client.agoraChannelData?.clientRole == null) {
       widget.client.sessionController.value.isLocalVideoDisabled
           ? list.add(
@@ -43,15 +44,22 @@ class _GridLayoutState extends State<GridLayout> {
               ),
             )
           : list.add(
-              rtc_local_view.SurfaceView(
-                zOrderMediaOverlay: true,
-                renderMode: widget.videoRenderMode,
-              ),
+ AgoraVideoView(
+      controller: VideoViewController(
+        rtcEngine: widget.client.engine,
+        canvas: VideoCanvas(uid: 0, 
+        renderMode: widget.videoRenderMode),
+      ),
+    ),
+              // rtc_local_view.SurfaceView(
+              //   zOrderMediaOverlay: true,
+              //   renderMode: widget.videoRenderMode,
+              // ),
             );
     }
 
     for (AgoraUser user in widget.client.sessionController.value.users) {
-      if (user.clientRole == ClientRole.Broadcaster) {
+      if (user.clientRole == ClientRoleType.clientRoleBroadcaster) {
         user.videoDisabled
             ? list.add(
                 DisabledVideoStfWidget(
@@ -59,12 +67,19 @@ class _GridLayoutState extends State<GridLayout> {
                 ),
               )
             : list.add(
-                rtc_remote_view.SurfaceView(
-                  channelId: widget.client.sessionController.value
-                      .connectionData!.channelName,
-                  uid: user.uid,
-                  renderMode: widget.videoRenderMode,
-                ),
+              AgoraVideoView(
+      controller: VideoViewController.remote(
+        rtcEngine: widget.client.engine,
+        canvas: VideoCanvas(uid: user.uid, renderMode: widget.videoRenderMode),
+        connection: RtcConnection(channelId: widget.client.sessionController.value.connectionData!.channelName),
+      ),
+    )
+                // rtc_remote_view.SurfaceView(
+                //   channelId: widget.client.sessionController.value
+                //       .connectionData!.channelName,
+                //   uid: user.uid,
+                //   renderMode: widget.videoRenderMode,
+                // ),
               );
       }
     }

@@ -1,3 +1,4 @@
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:agora_uikit/controllers/rtc_buttons.dart';
 import 'package:agora_uikit/src/layout/widgets/disabled_video_widget.dart';
@@ -5,8 +6,8 @@ import 'package:agora_uikit/src/layout/widgets/host_controls.dart';
 import 'package:agora_uikit/src/layout/widgets/number_of_users.dart';
 import 'package:agora_uikit/src/layout/widgets/user_av_state_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:agora_rtc_engine/rtc_local_view.dart' as rtc_local_view;
-import 'package:agora_rtc_engine/rtc_remote_view.dart' as rtc_remote_view;
+// import 'package:agora_rtc_engine/rtc_local_view.dart' as rtc_local_view;
+// import 'package:agora_rtc_engine/rtc_remote_view.dart' as rtc_remote_view;
 
 class FloatingLayout extends StatefulWidget {
   final AgoraClient client;
@@ -36,7 +37,7 @@ class FloatingLayout extends StatefulWidget {
   final bool? showNumberOfUsers;
 
   /// Render mode for local and remote video
-  final VideoRenderMode videoRenderMode;
+  final RenderModeType videoRenderMode;
 
   const FloatingLayout({
     Key? key,
@@ -49,7 +50,7 @@ class FloatingLayout extends StatefulWidget {
     this.showAVState = false,
     this.enableHostControl = false,
     this.showNumberOfUsers,
-    this.videoRenderMode = VideoRenderMode.Hidden,
+    this.videoRenderMode = RenderModeType.renderModeHidden,
   }) : super(key: key);
 
   @override
@@ -58,18 +59,31 @@ class FloatingLayout extends StatefulWidget {
 
 class _FloatingLayoutState extends State<FloatingLayout> {
   Widget _getLocalViews() {
-    return rtc_local_view.SurfaceView(
-      renderMode: widget.videoRenderMode,
+    return AgoraVideoView(
+      controller: VideoViewController(
+        rtcEngine: widget.client.engine,
+        canvas: const VideoCanvas(uid: 0),
+      ),
     );
+    // return rtc_local_view.SurfaceView(
+    //   renderMode: widget.videoRenderMode,
+    // );
   }
 
   Widget _getRemoteViews(int uid) {
-    return rtc_remote_view.SurfaceView(
-      channelId:
-          widget.client.sessionController.value.connectionData!.channelName,
-      uid: uid,
-      renderMode: widget.videoRenderMode,
+    return AgoraVideoView(
+      controller: VideoViewController.remote(
+        rtcEngine: widget.client.engine,
+        canvas: VideoCanvas(uid: uid),
+        connection: RtcConnection(channelId: widget.client.sessionController.value.connectionData!.channelName),
+      ),
     );
+    // return rtc_remote_view.SurfaceView(
+    //   channelId:
+    //       widget.client.sessionController.value.connectionData!.channelName,
+    //   uid: uid,
+    //   renderMode: widget.videoRenderMode,
+    // );
   }
 
   /// Video view wrapper
@@ -479,7 +493,7 @@ class _FloatingLayoutState extends State<FloatingLayout> {
             ],
           )
         : widget.client.sessionController.value.clientRole ==
-                ClientRole.Broadcaster
+                ClientRoleType.clientRoleBroadcaster
             ? widget.client.sessionController.value.isLocalVideoDisabled
                 ? Column(
                     children: [

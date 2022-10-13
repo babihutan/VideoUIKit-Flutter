@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_rtm/agora_rtm.dart';
 import 'package:agora_uikit/controllers/rtc_event_handlers.dart';
 import 'package:agora_uikit/controllers/rtc_token_handler.dart';
@@ -32,12 +32,12 @@ class SessionController extends ValueNotifier<AgoraSettings> {
               remote: true,
               muted: false,
               videoDisabled: false,
-              clientRole: ClientRole.Broadcaster,
+              clientRole: ClientRoleType.clientRoleBroadcaster,
             ),
             isLocalUserMuted: false,
             isLocalVideoDisabled: false,
             visible: true,
-            clientRole: ClientRole.Broadcaster,
+            clientRole: ClientRoleType.clientRoleBroadcaster,
             localUid: 0,
             generatedToken: null,
             generatedRtmId: null,
@@ -68,20 +68,20 @@ class SessionController extends ValueNotifier<AgoraSettings> {
   /// Function to initialize the Agora RTC engine.
   Future<void> initializeEngine(
       {required AgoraConnectionData agoraConnectionData}) async {
+    final eng = createAgoraRtcEngine();
+    await eng.initialize(RtcEngineContext(
+      appId: agoraConnectionData.appId,
+      areaCode: agoraConnectionData.areaCode.first.index),
+    );
     value = value.copyWith(
-      engine: await RtcEngine.createWithContext(
-        RtcEngineContext(
-          agoraConnectionData.appId,
-          areaCode: agoraConnectionData.areaCode,
-        ),
-      ),
+      engine: eng,
       connectionData: agoraConnectionData,
     );
     // Getting SDK versions and assigning them
-    String? rtcVersion = await value.engine?.getSdkVersion();
+    SDKBuildInfo? rtcVersion = await value.engine?.getVersion();
     AgoraVersions.staticRTM = await AgoraRtmClient.getSdkVersion();
     if (rtcVersion != null) {
-      AgoraVersions.staticRTC = rtcVersion;
+      AgoraVersions.staticRTC = rtcVersion.version!;
     }
   }
 
@@ -94,7 +94,7 @@ class SessionController extends ValueNotifier<AgoraSettings> {
     AgoraRtmChannelEventHandler agoraRtmChannelEventHandler,
     AgoraRtcEventHandlers agoraEventHandlers,
   ) async {
-    value.engine?.setEventHandler(
+    value.engine?.registerEventHandler(
       await rtcEngineEventHandler(
         agoraEventHandlers,
         agoraRtmChannelEventHandler,
@@ -115,8 +115,8 @@ class SessionController extends ValueNotifier<AgoraSettings> {
   /// Function to set all the channel properties.
   void setChannelProperties(AgoraChannelData agoraChannelData) async {
     await value.engine?.setChannelProfile(agoraChannelData.channelProfile);
-    if (agoraChannelData.channelProfile == ChannelProfile.LiveBroadcasting) {
-      await value.engine?.setClientRole(agoraChannelData.clientRole);
+    if (agoraChannelData.channelProfile == ChannelProfileType.channelProfileLiveBroadcasting) {
+      await value.engine?.setClientRole(role:agoraChannelData.clientRole);
     } else {
       log('You can only set channel profile in case of Live Broadcasting',
           level: Level.warning.value);
@@ -133,11 +133,11 @@ class SessionController extends ValueNotifier<AgoraSettings> {
 
     if (agoraChannelData.setBeautyEffectOptions != null) {
       await value.engine?.setBeautyEffectOptions(
-          true, agoraChannelData.setBeautyEffectOptions!);
+          enabled:true, options:agoraChannelData.setBeautyEffectOptions!);
     }
 
     await value.engine
-        ?.enableDualStreamMode(agoraChannelData.enableDualStreamMode);
+        ?.enableDualStreamMode(enabled:agoraChannelData.enableDualStreamMode);
 
     if (agoraChannelData.localPublishFallbackOption != null) {
       await value.engine?.setLocalPublishFallbackOption(
@@ -160,7 +160,8 @@ class SessionController extends ValueNotifier<AgoraSettings> {
     await value.engine?.setCameraTorchOn(agoraChannelData.setCameraTorchOn);
 
     await value.engine?.setAudioProfile(
-        agoraChannelData.audioProfile, agoraChannelData.audioScenario);
+        profile:agoraChannelData.audioProfile, 
+        scenario:agoraChannelData.audioScenario);
   }
 
   /// Function to join the video call.
@@ -171,7 +172,10 @@ class SessionController extends ValueNotifier<AgoraSettings> {
           DateTime.now().millisecondsSinceEpoch.toString(),
     );
     await value.engine?.enableVideo();
-    await value.engine?.enableAudioVolumeIndication(200, 3, true);
+    await value.engine?.enableAudioVolumeIndication(
+        interval:200, 
+        smooth:3, 
+        reportVad:true);
     if (value.connectionData?.tokenUrl != null) {
       await getToken(
         tokenUrl: value.connectionData!.tokenUrl,
@@ -187,10 +191,10 @@ class SessionController extends ValueNotifier<AgoraSettings> {
       }
     }
     await value.engine?.joinChannel(
-      value.connectionData!.tempToken ?? value.generatedToken,
-      value.connectionData!.channelName,
-      null,
-      value.connectionData!.uid,
+      token:value.connectionData!.tempToken ?? value.generatedToken!,
+      channelId:value.connectionData!.channelName,
+      options:ChannelMediaOptions(),
+      uid: value.connectionData!.uid,
     );
   }
 
@@ -221,7 +225,7 @@ class SessionController extends ValueNotifier<AgoraSettings> {
           remote: false,
           muted: value.isLocalUserMuted,
           videoDisabled: value.isLocalVideoDisabled,
-          clientRole: ClientRole.Broadcaster,
+          clientRole: ClientRoleType.clientRoleBroadcaster,
         ),
       );
     }
