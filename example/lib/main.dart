@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void initAgora() async {
-    await client.initialize();
+    await client.initialize(null);
   }
 
   @override
