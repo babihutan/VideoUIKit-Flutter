@@ -69,14 +69,14 @@ class AgoraClient {
     return _sessionController.value.engine!;
   }
 
-  Future<void> initialize(RtcEngine eng) async {
+  Future<void> initialize() async {
     if (_initialized) {
       return;
     }
 
     try {
       await _sessionController.initializeEngine(
-          agoraConnectionData: agoraConnectionData, engine:eng);
+          agoraConnectionData: agoraConnectionData);
     } catch (e) {
       log("Error while initializing Agora RTC SDK", level: Level.error.value);
     }
