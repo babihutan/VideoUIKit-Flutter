@@ -65,6 +65,16 @@ class AgoraClient {
     return _sessionController;
   }
 
+  bool get isEngineReady {
+    if( _initialized==false) {
+      return false;
+    }
+    if( _sessionController.value.engine==null) {
+    return false;
+    }
+    return true;
+  }
+
   RtcEngine get engine {
     return _sessionController.value.engine!;
   }
