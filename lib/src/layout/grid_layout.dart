@@ -33,24 +33,30 @@ class GridLayout extends StatefulWidget {
 
 class _GridLayoutState extends State<GridLayout> {
   List<Widget> _getRenderViews() {
-    final List<StatefulWidget> list = [];
+    final List<Widget> list = [];
 
-    if (widget.client.agoraChannelData?.clientRole == ClientRoleType.clientRoleBroadcaster ||
+    if (widget.client.agoraChannelData?.clientRole ==
+            ClientRoleType.clientRoleBroadcaster ||
         widget.client.agoraChannelData?.clientRole == null) {
       widget.client.sessionController.value.isLocalVideoDisabled
           ? list.add(
-              DisabledVideoStfWidget(
-                disabledVideoWidget: widget.disabledVideoWidget,
+              TileWrapper(child: DisabledVideoStfWidget(
+                  disabledVideoWidget: widget.disabledVideoWidget,
+                ),
+                name: 'me'
               ),
             )
           : list.add(
- AgoraVideoView(
-      controller: VideoViewController(
-        rtcEngine: widget.client.engine,
-        canvas: VideoCanvas(uid: 0, 
-        renderMode: widget.videoRenderMode),
-      ),
-    ),
+              TileWrapper(
+                name: 'me',
+                child: AgoraVideoView(
+                  controller: VideoViewController(
+                    rtcEngine: widget.client.engine,
+                    canvas:
+                        VideoCanvas(uid: 0, renderMode: widget.videoRenderMode),
+                  ),
+                ),
+              ),
               // rtc_local_view.SurfaceView(
               //   zOrderMediaOverlay: true,
               //   renderMode: widget.videoRenderMode,
@@ -62,25 +68,33 @@ class _GridLayoutState extends State<GridLayout> {
       if (user.clientRole == ClientRoleType.clientRoleBroadcaster) {
         user.videoDisabled
             ? list.add(
-                DisabledVideoStfWidget(
-                  disabledVideoWidget: widget.disabledVideoWidget,
+                TileWrapper(
+                  name: user.uid.toString(),
+                  child: DisabledVideoStfWidget(
+                    disabledVideoWidget: widget.disabledVideoWidget,
+                  ),
                 ),
               )
-            : list.add(
-              AgoraVideoView(
-      controller: VideoViewController.remote(
-        rtcEngine: widget.client.engine,
-        canvas: VideoCanvas(uid: user.uid, renderMode: widget.videoRenderMode),
-        connection: RtcConnection(channelId: widget.client.sessionController.value.connectionData!.channelName),
-      ),
-    )
+            : list.add(TileWrapper(
+              name: user.uid.toString(),
+              child: AgoraVideoView(
+                  controller: VideoViewController.remote(
+                    rtcEngine: widget.client.engine,
+                    canvas: VideoCanvas(
+                        uid: user.uid, renderMode: widget.videoRenderMode),
+                    connection: RtcConnection(
+                        channelId: widget.client.sessionController.value
+                            .connectionData!.channelName),
+                  ),
+                ),
+            )
                 // rtc_remote_view.SurfaceView(
                 //   channelId: widget.client.sessionController.value
                 //       .connectionData!.channelName,
                 //   uid: user.uid,
                 //   renderMode: widget.videoRenderMode,
                 // ),
-              );
+                );
       }
     }
 
@@ -197,5 +211,21 @@ class _DisabledVideoStfWidgetState extends State<DisabledVideoStfWidget> {
   @override
   Widget build(BuildContext context) {
     return widget.disabledVideoWidget!;
+  }
+}
+
+class TileWrapper extends StatelessWidget {
+  final Widget child;
+  final String name;
+  TileWrapper({required this.child, required this.name});
+  @override
+  Widget build(BuildContext context) {
+    return GridTile(
+      footer: GridTileBar(
+        backgroundColor: Colors.black54,
+        title: Text(name),
+      ),
+      child: child,
+    );
   }
 }
