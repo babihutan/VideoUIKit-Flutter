@@ -13,6 +13,8 @@ class AgoraVideoViewer extends StatefulWidget {
   /// Choose between two default layouts [Layout.floating] and [Layout.grid]
   final Layout layoutType;
 
+  final Stream<Map<int, String>>? labelStream;
+
   /// Set the height of the container in the floating view. The default height is 0.2 of the total height.
   final double? floatingLayoutContainerHeight;
 
@@ -43,6 +45,7 @@ class AgoraVideoViewer extends StatefulWidget {
     Key? key,
     required this.client,
     this.layoutType = Layout.grid,
+    this.labelStream,
     this.floatingLayoutContainerHeight,
     this.floatingLayoutContainerWidth,
     this.floatingLayoutMainViewPadding = const EdgeInsets.fromLTRB(3, 0, 3, 3),
@@ -75,6 +78,7 @@ class _AgoraVideoViewerState extends State<AgoraVideoViewer> {
       child: widget.layoutType == Layout.floating
           ? FloatingLayout(
               client: widget.client,
+              labelStream: widget.labelStream,
               disabledVideoWidget: widget.disabledVideoWidget,
               floatingLayoutContainerHeight:
                   widget.floatingLayoutContainerHeight,
@@ -89,6 +93,7 @@ class _AgoraVideoViewerState extends State<AgoraVideoViewer> {
             )
           : GridLayout(
               client: widget.client,
+              labelStream: widget.labelStream,
               showNumberOfUsers: widget.showNumberOfUsers,
               disabledVideoWidget: widget.disabledVideoWidget,
               videoRenderMode: widget.videoRenderMode,

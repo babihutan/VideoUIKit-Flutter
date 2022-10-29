@@ -41,9 +41,12 @@ class FloatingLayout extends StatefulWidget {
   /// Render mode for local and remote video
   final RenderModeType videoRenderMode;
 
+  final Stream<Map<int, String>>? labelStream;
+
   const FloatingLayout({
     Key? key,
     required this.client,
+    this.labelStream,
     this.floatingLayoutContainerHeight,
     this.floatingLayoutContainerWidth,
     this.floatingLayoutMainViewPadding = const EdgeInsets.fromLTRB(3, 0, 3, 3),
@@ -62,7 +65,7 @@ class FloatingLayout extends StatefulWidget {
 class _FloatingLayoutState extends State<FloatingLayout> {
   Widget _getLocalViews() {
     return TileWrapper(
-      name: 'me',
+      uid: 0,
       child: AgoraVideoView(
         controller: VideoViewController(
           rtcEngine: widget.client.engine,
@@ -77,7 +80,7 @@ class _FloatingLayoutState extends State<FloatingLayout> {
 
   Widget _getRemoteViews(int uid) {
     return TileWrapper(
-      name: uid.toString(),
+      uid: uid,
       child: AgoraVideoView(
         controller: VideoViewController.remote(
           rtcEngine: widget.client.engine,
@@ -505,7 +508,7 @@ class _FloatingLayoutState extends State<FloatingLayout> {
             ? widget.client.sessionController.value.isLocalVideoDisabled
                 ? Column(
                     children: [
-                      Expanded(child: TileWrapper(name: 'me', child: widget.disabledVideoWidget)),
+                      Expanded(child: TileWrapper(uid: 0, child: widget.disabledVideoWidget)),
                     ],
                   )
                 : Container(

@@ -10,6 +10,8 @@ import 'package:agora_uikit/agora_uikit.dart';
 class GridLayout extends StatefulWidget {
   final AgoraClient client;
 
+  final Stream<Map<int, String>>? labelStream;
+
   /// Display the total number of users in a channel.
   final bool? showNumberOfUsers;
 
@@ -23,6 +25,7 @@ class GridLayout extends StatefulWidget {
     Key? key,
     required this.client,
     this.showNumberOfUsers,
+    this.labelStream,
     this.disabledVideoWidget = const DisabledVideoWidget(),
     this.videoRenderMode = RenderModeType.renderModeHidden,
   }) : super(key: key);
@@ -40,15 +43,15 @@ class _GridLayoutState extends State<GridLayout> {
         widget.client.agoraChannelData?.clientRole == null) {
       widget.client.sessionController.value.isLocalVideoDisabled
           ? list.add(
-              TileWrapper(child: DisabledVideoStfWidget(
-                  disabledVideoWidget: widget.disabledVideoWidget,
-                ),
-                name: 'me'
-              ),
+              TileWrapper(
+                  child: DisabledVideoStfWidget(
+                    disabledVideoWidget: widget.disabledVideoWidget,
+                  ),
+                  uid: 0),
             )
           : list.add(
               TileWrapper(
-                name: 'me',
+                uid: 0,
                 child: AgoraVideoView(
                   controller: VideoViewController(
                     rtcEngine: widget.client.engine,
@@ -69,15 +72,15 @@ class _GridLayoutState extends State<GridLayout> {
         user.videoDisabled
             ? list.add(
                 TileWrapper(
-                  name: user.uid.toString(),
+                  uid: user.uid,
                   child: DisabledVideoStfWidget(
                     disabledVideoWidget: widget.disabledVideoWidget,
                   ),
                 ),
               )
             : list.add(TileWrapper(
-              name: user.uid.toString(),
-              child: AgoraVideoView(
+                uid: user.uid,
+                child: AgoraVideoView(
                   controller: VideoViewController.remote(
                     rtcEngine: widget.client.engine,
                     canvas: VideoCanvas(
@@ -87,7 +90,7 @@ class _GridLayoutState extends State<GridLayout> {
                             .connectionData!.channelName),
                   ),
                 ),
-            )
+              )
                 // rtc_remote_view.SurfaceView(
                 //   channelId: widget.client.sessionController.value
                 //       .connectionData!.channelName,
@@ -216,14 +219,41 @@ class _DisabledVideoStfWidgetState extends State<DisabledVideoStfWidget> {
 
 class TileWrapper extends StatelessWidget {
   final Widget child;
-  final String name;
-  TileWrapper({required this.child, required this.name});
+  final int uid;
+  final Stream<Map<int, String>>? labelStream;
+  TileWrapper({required this.child, required this.uid, this.labelStream});
   @override
   Widget build(BuildContext context) {
+    if (labelStream != null) {
+      return StreamBuilder<Map<int, String>>(
+        stream: labelStream,
+        builder: (context, labelMapSnap) {
+          if (!labelMapSnap.hasData || !labelMapSnap.data!.containsKey(uid)) {
+            return _tile(context);
+          }
+          final name = labelMapSnap.data![uid];
+          return _tile(context, name: name);
+          ;
+        },
+      );
+    } else {
+      return _tile(context);
+    }
+  }
+
+  String get simpleName {
+    if (uid == 0) {
+      return 'me';
+    } else {
+      return uid.toString();
+    }
+  }
+
+  Widget _tile(BuildContext context, {String? name}) {
     return GridTile(
       footer: GridTileBar(
         backgroundColor: Colors.black54,
-        title: Text(name),
+        title: Text(name ?? simpleName),
       ),
       child: child,
     );
