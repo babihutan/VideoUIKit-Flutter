@@ -6,6 +6,8 @@ import 'package:agora_uikit/src/layout/widgets/host_controls.dart';
 import 'package:agora_uikit/src/layout/widgets/number_of_users.dart';
 import 'package:agora_uikit/src/layout/widgets/user_av_state_widget.dart';
 import 'package:flutter/material.dart';
+
+import 'grid_layout.dart';
 // import 'package:agora_rtc_engine/rtc_local_view.dart' as rtc_local_view;
 // import 'package:agora_rtc_engine/rtc_remote_view.dart' as rtc_remote_view;
 
@@ -59,10 +61,13 @@ class FloatingLayout extends StatefulWidget {
 
 class _FloatingLayoutState extends State<FloatingLayout> {
   Widget _getLocalViews() {
-    return AgoraVideoView(
-      controller: VideoViewController(
-        rtcEngine: widget.client.engine,
-        canvas: const VideoCanvas(uid: 0),
+    return TileWrapper(
+      name: 'me',
+      child: AgoraVideoView(
+        controller: VideoViewController(
+          rtcEngine: widget.client.engine,
+          canvas: const VideoCanvas(uid: 0),
+        ),
       ),
     );
     // return rtc_local_view.SurfaceView(
@@ -71,11 +76,14 @@ class _FloatingLayoutState extends State<FloatingLayout> {
   }
 
   Widget _getRemoteViews(int uid) {
-    return AgoraVideoView(
-      controller: VideoViewController.remote(
-        rtcEngine: widget.client.engine,
-        canvas: VideoCanvas(uid: uid),
-        connection: RtcConnection(channelId: widget.client.sessionController.value.connectionData!.channelName),
+    return TileWrapper(
+      name: uid.toString(),
+      child: AgoraVideoView(
+        controller: VideoViewController.remote(
+          rtcEngine: widget.client.engine,
+          canvas: VideoCanvas(uid: uid),
+          connection: RtcConnection(channelId: widget.client.sessionController.value.connectionData!.channelName),
+        ),
       ),
     );
     // return rtc_remote_view.SurfaceView(
@@ -497,7 +505,7 @@ class _FloatingLayoutState extends State<FloatingLayout> {
             ? widget.client.sessionController.value.isLocalVideoDisabled
                 ? Column(
                     children: [
-                      Expanded(child: widget.disabledVideoWidget),
+                      Expanded(child: TileWrapper(name: 'me', child: widget.disabledVideoWidget)),
                     ],
                   )
                 : Container(
