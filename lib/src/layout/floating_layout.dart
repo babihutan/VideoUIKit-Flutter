@@ -66,6 +66,7 @@ class _FloatingLayoutState extends State<FloatingLayout> {
   Widget _getLocalViews() {
     return TileWrapper(
       uid: 0,
+      labelStream: widget.labelStream,
       child: AgoraVideoView(
         controller: VideoViewController(
           rtcEngine: widget.client.engine,
@@ -81,6 +82,7 @@ class _FloatingLayoutState extends State<FloatingLayout> {
   Widget _getRemoteViews(int uid) {
     return TileWrapper(
       uid: uid,
+      labelStream: widget.labelStream,
       child: AgoraVideoView(
         controller: VideoViewController.remote(
           rtcEngine: widget.client.engine,
@@ -508,7 +510,9 @@ class _FloatingLayoutState extends State<FloatingLayout> {
             ? widget.client.sessionController.value.isLocalVideoDisabled
                 ? Column(
                     children: [
-                      Expanded(child: TileWrapper(uid: 0, child: widget.disabledVideoWidget)),
+                      Expanded(child: TileWrapper(uid: 0, 
+                        labelStream: widget.labelStream,
+                        child: widget.disabledVideoWidget)),
                     ],
                   )
                 : Container(

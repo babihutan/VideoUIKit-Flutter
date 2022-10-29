@@ -47,11 +47,13 @@ class _GridLayoutState extends State<GridLayout> {
                   child: DisabledVideoStfWidget(
                     disabledVideoWidget: widget.disabledVideoWidget,
                   ),
+                  labelStream: widget.labelStream,
                   uid: 0),
             )
           : list.add(
               TileWrapper(
                 uid: 0,
+                labelStream: widget.labelStream,
                 child: AgoraVideoView(
                   controller: VideoViewController(
                     rtcEngine: widget.client.engine,
@@ -73,6 +75,7 @@ class _GridLayoutState extends State<GridLayout> {
             ? list.add(
                 TileWrapper(
                   uid: user.uid,
+                  labelStream: widget.labelStream,
                   child: DisabledVideoStfWidget(
                     disabledVideoWidget: widget.disabledVideoWidget,
                   ),
@@ -80,6 +83,7 @@ class _GridLayoutState extends State<GridLayout> {
               )
             : list.add(TileWrapper(
                 uid: user.uid,
+                labelStream: widget.labelStream,
                 child: AgoraVideoView(
                   controller: VideoViewController.remote(
                     rtcEngine: widget.client.engine,
@@ -221,10 +225,10 @@ class TileWrapper extends StatelessWidget {
   final Widget child;
   final int uid;
   final Stream<Map<int, String>>? labelStream;
-  TileWrapper({required this.child, required this.uid, this.labelStream});
+  TileWrapper({required this.child, required this.uid, @required this.labelStream});
   @override
   Widget build(BuildContext context) {
-    if (labelStream != null) {
+    if (labelStream != null && uid>0) {
       return StreamBuilder<Map<int, String>>(
         stream: labelStream,
         builder: (context, labelMapSnap) {
@@ -233,7 +237,6 @@ class TileWrapper extends StatelessWidget {
           }
           final name = labelMapSnap.data![uid];
           return _tile(context, name: name);
-          ;
         },
       );
     } else {
